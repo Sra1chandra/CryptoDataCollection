@@ -6,13 +6,18 @@ class BinanceAPI:
         self._baseurl = "https://api.binance.com"
         pass
 
-    def make_request(self, endpoint, query_params=None):
+    def _make_request(self, endpoint, query_params=None):
         response = requests.get(self._baseurl+endpoint, params=query_params)
 
         if response.status_code == 200:
-            print(response)
             return response.json()
         else:
             logger.error(f"Request error when connecting to {self._baseurl+endpoint}")
             return None
+
+    def get_symbols(self):
+        endpoint = "/api/v3/exchangeInfo"
+        response = self._make_request(endpoint)
+        symbols_list = [record["symbol"] for record in response["symbols"]]
+        return symbols_list
 
