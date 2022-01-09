@@ -32,8 +32,28 @@ class BinanceAPI:
             query_params["endTime"] = end_time
 
         response = self._make_request(endpoint, query_params=query_params)
-        if response is not None:
+        if len(response) != 0:
             logger.info(f"Data Retrieved for {symbol} from {ms_datetime(response[0][0])} to {ms_datetime(response[-1][0])}")
 
-        return response
+        raw_data = response
+        data = []
+        if raw_data is not None:
+            for row in raw_data[:-1]:
+                data.append((float(row[0]), float(row[1]), float(row[2]), float(row[3]), float(row[4]), float(row[5])))
+
+        return data
+
+    def get_backdated_data(self, symbol, interval, start_time=None, end_time=None):
+        data = []
+        while True:
+            current_data = self.get_data(symbol, interval, end_time=end_time)
+            if len(current_data) == 0:
+                break
+            data += current_data
+            end_time = int(current_data[0][0])
+
+        return data
+
+
+
 
